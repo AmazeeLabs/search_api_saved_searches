@@ -208,7 +208,7 @@ You can configure your saved searches at the following address:
   $form['options']['interval']['interval_options'] = array(
     '#type' => 'textarea',
     '#title' => t('Interval options'),
-    '#description' => t('The possible intervals the user can choose from. Enter one value per line, in the format seconds|label.'),
+    '#description' => t('The possible intervals the user can choose from. Enter one value per line, in the format seconds|label. The "-1" value for seconds means "do not notify".'),
     '#default_value' => $interval_options,
     '#parents' => array('options', 'interval_options'),
     '#states' => array(

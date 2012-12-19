@@ -919,7 +919,7 @@ function search_api_saved_searches_cron() {
   $ids = db_select('search_api_saved_search', 's')
     ->fields('s', array('id'))
     ->condition('enabled', 1)
-    ->where('last_execute + notify_interval < :time', array(':time' => REQUEST_TIME + 15))
+    ->where('notify_interval <> -1 AND last_execute + notify_interval < :time', array(':time' => REQUEST_TIME + 15))
     ->execute()
     ->fetchCol();
   if (!$ids) {
