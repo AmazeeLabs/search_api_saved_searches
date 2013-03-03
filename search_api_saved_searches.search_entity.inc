@@ -219,13 +219,4 @@ class SearchApiSavedSearch extends Entity {
     }
   }
 
-  /**
-   * Gets the type of this entity.
-   *
-   * Without this method, we cannot check if an entity is of a certain type with
-   * rules.
-   */
-  public function type() {
-    return 'search_api_saved_search';
-  }
 }
