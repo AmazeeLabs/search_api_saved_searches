@@ -219,4 +219,10 @@ class SearchApiSavedSearch extends Entity {
     }
   }
 
+  // Needed if we we want to check the type the entity using the
+  // entity_metadata_wrapper.
+  public function type() {
+    return 'search_api_saved_search';
+  }
+
 }
