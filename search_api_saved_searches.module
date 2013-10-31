@@ -976,6 +976,7 @@ function search_api_saved_searches_check_updates(array $searches) {
     $index = $settings->index();
     $mail_params = array();
     foreach ($searches as $search) {
+      watchdog('search_api_saved_searches', 'Starting debug for search with id: ' . $search->id, NULL);
       $old = explode(',', $search->results);
       // Make sure we run the query as the user who owns the saved search.
       // Otherwise node access will not work properly.
@@ -983,15 +984,30 @@ function search_api_saved_searches_check_updates(array $searches) {
       // Get actual results for the query.
       $query = $search->query();
       $response = $query->execute();
+
+      ob_start();
+      echo '<pre>';
+      print_r(array('old_results' => $old, 'results' => array_keys($response['results'])));
+      $output = ob_get_clean();
+      watchdog('search_api_saved_searches', "Old results and current results: " . $output, NULL);
+
       if (!empty($response['results'])) {
         $results = array_keys($response['results']);
         // Compare these results to the old ones.
         $new = array_diff_key(drupal_map_assoc($results), drupal_map_assoc($old));
+
+        ob_start();
+        echo '<pre>';
+        print_r($new);
+        $output = ob_get_clean();
+        watchdog('search_api_saved_searches', "New results: " . $output, NULL);
+
         if ($new) {
           // We have new results: send them to the user.
           $new_results = $index->loadItems($new);
           // Let other modules alter these results.
           drupal_alter('search_api_saved_searches_new_results', $new_results, $search);
+          watchdog('search_api_saved_searches', "Adding the new search results to the params.", NULL);
           if ($new_results) {
             $mail_params['searches'][] = array(
               'search' => $search,
@@ -1003,6 +1019,7 @@ function search_api_saved_searches_check_updates(array $searches) {
           // The results changed in some way: store the latest version.
           $search->results = implode(',', $results);
           $search->save();
+          watchdog('search_api_saved_searches', "Save the search: " . $search->id, NULL);
         }
       }
     }
@@ -1010,6 +1027,7 @@ function search_api_saved_searches_check_updates(array $searches) {
     if ($mail_params) {
       $mail_params['user'] = user_load($search->uid);
       $mail_params['settings'] = $settings;
+      watchdog('search_api_saved_searches', "Send the results to: " . $search->mail, NULL);
       $message = drupal_mail('search_api_saved_searches', 'notify', $search->mail,
           user_preferred_language($mail_params['user']), $mail_params);
       if ($message['result']) {
