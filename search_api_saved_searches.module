@@ -962,20 +962,6 @@ function search_api_saved_searches_cron_queue_info() {
   );
 }
 
-function search_api_saved_search_test_run() {
-  foreach (search_api_saved_searches_cron_queue_info() as $queue_name => $info) {
-      $function = $info['worker callback'];
-      $queue = DrupalQueue::get($queue_name);
-      drupal_set_message('here 1');
-      while ($item = $queue->claimItem()) {
-        drupal_set_message('here for item: ' . $item->item_id);
-        $function($item->data);
-        drupal_set_message('here after execution for item: ' . $item->item_id);
-        $queue->deleteItem($item);
-      }
-    }
-}
-
 /**
  * Checks for new results for saved searches, and sends a mail if necessary.
  *
