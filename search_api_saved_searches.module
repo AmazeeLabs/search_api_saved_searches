@@ -970,8 +970,11 @@ function search_api_saved_searches_cron_queue_info() {
  *   these should have the same mail address and base settings.
  */
 function search_api_saved_searches_check_updates(array $searches) {
+  watchdog('search_api_saved_searches', 'Starting the searche worker.', NULL);
   try {
+    watchdog('search_api_saved_searches', 'In try, searches count: ' .count($searches), NULL);
     $search = reset($searches);
+    watchdog('search_api_saved_searches', 'In try: starting the searche worker with id: ' . $search->id, NULL);
     $settings = $search->settings();
     $index = $settings->index();
     $mail_params = array();
