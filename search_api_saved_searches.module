@@ -986,10 +986,6 @@ function search_api_saved_search_test_run() {
 function search_api_saved_searches_check_updates(array $searches) {
   try {
     $search = reset($searches);
-    if ($search->id == 149) {
-      watchdog('search_api_saved_searches', "In search worer for " . $search->id, NULL);
-      return;
-    }
     $settings = $search->settings();
     $index = $settings->index();
     $mail_params = array();
@@ -1007,7 +1003,11 @@ function search_api_saved_searches_check_updates(array $searches) {
         $new = array_diff_key(drupal_map_assoc($results), drupal_map_assoc($old));
         if ($new) {
           // We have new results: send them to the user.
-          $new_results = $index->loadItems($new);
+          // Do not send more than 15 items, because then the e-mail can get
+          // very big, and in the same time if there are hundreds of items,
+          // we could get an out of memory error if we load all of them.
+          $new_search_results = array_slice($new, 0, 15, TRUE);
+          $new_results = $index->loadItems($new_search_results);
           // Let other modules alter these results.
           drupal_alter('search_api_saved_searches_new_results', $new_results, $search);
           if ($new_results) {
